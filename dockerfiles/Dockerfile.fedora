@@ -1,0 +1,5 @@
+FROM fedora:43
+RUN dnf update -y && dnf install -y cmake gcc-c++ git python3-devel python3-pip zlib-devel libdrm-devel ncurses-devel openssl-devel rpm-build wget which numactl-devel libffi-devel && dnf clean all
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install --upgrade pip
