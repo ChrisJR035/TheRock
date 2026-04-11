@@ -27,3 +27,11 @@ __pycache__
 /install/
 /output-*/
 /out/
+build/
+.venv/
+build/
+.venv/
+*.so
+.titan_fetched
+titan_manifest.json
+titan_memory.db
