@@ -73,20 +73,30 @@ Key differences from [per-family releases](#per-family-releases):
 
 ### Multi-arch release status
 
-| Platform |                                                                                                                                                                                  ROCm |                                                                                                                                                                                                                                       PyTorch |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| Linux    | [![Multi-arch release](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml) |       [![Multi-arch PyTorch (Linux)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_linux_pytorch_wheels.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_linux_pytorch_wheels.yml) |
-| Windows  | [![Multi-arch release](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml) | [![Multi-arch PyTorch (Windows)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_windows_pytorch_wheels.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_windows_pytorch_wheels.yml) |
+> [!WARNING]
+> Nightly packages are built from the latest ROCm code and may be unstable.
+>
+> If you encounter issues, check
+>
+> - https://therock-hud-dev.amd.com/ for current test status
+> - https://github.com/ROCm/TheRock/issues for known issues
+
+| Job description                         | Status                                                                                                                                                                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build ROCm artifacts/tarballs/packages  | [![Multi-Arch Release](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release.yml)                                                                      |
+| Test ROCm artifacts                     | [![Test Artifacts](https://github.com/ROCm/rockrel/actions/workflows/test_artifacts.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/test_artifacts.yml)                                                                                  |
+| Build and test Linux PyTorch packages   | [![Multi-Arch Release Linux PyTorch Wheels](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_linux_pytorch_wheels.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_linux_pytorch_wheels.yml)       |
+| Build and test Windows PyTorch packages | [![Multi-Arch Release Windows PyTorch Wheels](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_windows_pytorch_wheels.yml/badge.svg)](https://github.com/ROCm/rockrel/actions/workflows/multi_arch_release_windows_pytorch_wheels.yml) |
 
 **Package availability:**
 
-| Package type            | Linux                                                                                                                                                                                                                                        | Windows                                                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| ROCm Python packages    | ✅ Available                                                                                                                                                                                                                                 | ✅ Available                                                                                                       |
-| PyTorch Python packages | ✅ Available<ul><li>Torch versions 2.10 and 2.11 only,<br>other versions pending [#4768](https://github.com/ROCm/TheRock/issues/4768)</li><li>Missing flash attention pending [#4969](https://github.com/ROCm/TheRock/issues/4969)</li></ul> | ✅ Available<ul><li>Missing flash attention pending [#4969](https://github.com/ROCm/TheRock/issues/4969)</li></ul> |
-| JAX Python packages     | 🟠 Planned                                                                                                                                                                                                                                   | -                                                                                                                  |
-| ROCm tarballs           | ✅ Available                                                                                                                                                                                                                                 | ✅ Available                                                                                                       |
-| Native Linux packages   | ✅ Available                                                                                                                                                                                                                                 | 🟠 Planned ([#1987](https://github.com/ROCm/TheRock/issues/1987))                                                  |
+| Package type            | Linux                                                                                                                                                  | Windows                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| ROCm Python packages    | ✅ Available                                                                                                                                           | ✅ Available                                                      |
+| PyTorch Python packages | ✅ Available<ul><li>Torch versions 2.8, 2.10, and 2.11 only -<br>other versions pending [#4768](https://github.com/ROCm/TheRock/issues/4768)</li></ul> | ✅ Available                                                      |
+| JAX Python packages     | 🟠 Planned                                                                                                                                             | -                                                                 |
+| ROCm tarballs           | ✅ Available                                                                                                                                           | ✅ Available                                                      |
+| Native packages         | ✅ Available                                                                                                                                           | 🟠 Planned ([#1987](https://github.com/ROCm/TheRock/issues/1987)) |
 
 ### Installing multi-arch ROCm Python packages
 
@@ -125,7 +135,9 @@ In multi-arch releases, GPU-specific device code is split into separate
 | `rocm-sdk-device-{target}` | GPU-specific device code (e.g. `rocm-sdk-device-gfx942`)           |
 | `rocm-sdk-devel`           | OS-specific development tools                                      |
 
-Install ROCm with device support for your GPU using the unified index:
+Install ROCm with device support for your GPU using the unified index.
+Select your GPU using the `[device-*]` extras from the
+[table below](#supported-python-device--install-extras):
 
 > [!WARNING]
 > A `device-*` extra (or a single-family per-architecture index) being
@@ -136,8 +148,17 @@ Install ROCm with device support for your GPU using the unified index:
 > runtime. Please file an issue if you hit one.
 
 ```bash
-# Replace device-gfx942 with your GPU, see the section below for details
-pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ "rocm[libraries,device-gfx942]"
+# Single device (replace device-gfx942 with your GPU):
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
+    "rocm[libraries,device-gfx942]"
+
+# Multiple devices (e.g. for a Dockerfile used by both MI300X and MI355X):
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
+    "rocm[libraries,device-gfx942,device-gfx950]"
+
+# All supported devices:
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
+    "rocm[libraries,device-all]"
 ```
 
 <!-- TODO: Advertise wheel variants / WheelNext once available  -->
@@ -151,13 +172,14 @@ rocm-sdk test
 #### Supported Python `[device-*]` install extras
 
 For packages which include device-specific code (such as `rocm`, `torch`, and
-`torchvision`), support for individual devices can be installed using the
-corresponding `device-*` extra from the table below. See also the
+`torchvision`), select your GPU using a `[device-*]` install extra from the
+table below. See also the
 [GPU architecture specs](https://rocm.docs.amd.com/en/latest/reference/gpu-arch-specs.html)
 for a full list of supported AMD GPUs.
 
 | Product Name                                         | GFX Target | Device Extra     |
 | ---------------------------------------------------- | ---------- | ---------------- |
+| *All supported GPUs*                                 | (all)      | `device-all`     |
 | AMD Instinct MI355X / MI350X                         | gfx950     | `device-gfx950`  |
 | AMD Instinct MI325X / MI300X / MI300A                | gfx942     | `device-gfx942`  |
 | AMD Instinct MI250X / MI250 / MI210                  | gfx90a     | `device-gfx90a`  |
@@ -185,36 +207,26 @@ for a full list of supported AMD GPUs.
 | AMD Radeon Pro V520                                  | gfx1011    | `device-gfx1011` |
 | AMD Radeon Pro W5500                                 | gfx1012    | `device-gfx1012` |
 
-#### The Python `[device-all]` install extra
-
-A `[device-all]` extra is also provided which installs device code for all GPUs.
-
-> [!WARNING]
-> The `[device-all]` extra may not work consistently for nightly releases because
-> packages are promoted per-target as they pass tests. If tests are still
-> running or if they failed for an individual target, this extra will not be
-> able to find all required packages.
->
-> We also publish **untested** packages to the nightly "whl-staging-multi-arch"
-> index which is not affected by this limitation.
->
-> | Package index                                          | Safe to use `[device-all]`?                              |
-> | ------------------------------------------------------ | -------------------------------------------------------- |
-> | https://rocm.nightlies.amd.com/whl-multi-arch/         | ❌ No (some packages may not be available)               |
-> | https://rocm.nightlies.amd.com/whl-staging-multi-arch/ | ✅ Yes (index includes all packages, even if tests fail) |
-
-<!-- TODO: add repo.amd.com URL to the list of package indexes once we publish a stable release? -->
-
 ### Installing multi-arch PyTorch Python packages
 
-Install PyTorch with ROCm support using the same unified index:
+Install PyTorch with ROCm support using the unified multi-arch index.
+Select your GPU target using the `[device-*]` extras from the
+[table above](#supported-python-device--install-extras):
 
 ```bash
-# Replace device-gfx942 with your GPU, see the section above for details
-# Note: we'll recommend 'whl-multi-arch' instead of 'whl-staging-multi-arch'
-#       as soon as we test run automate tests on these packages
-pip install --index-url https://rocm.nightlies.amd.com/whl-staging-multi-arch/ \
+# Single device (replace device-gfx942 with your GPU):
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
     "torch[device-gfx942]" "torchvision[device-gfx942]" torchaudio
+
+# Multiple devices (e.g. for a Dockerfile used by both MI300X and MI355X):
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
+    "torch[device-gfx942,device-gfx950]" \
+    "torchvision[device-gfx942,device-gfx950]" \
+    torchaudio
+
+# All supported devices:
+pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
+    "torch[device-all]" "torchvision[device-all]" torchaudio
 
 # Optional additional packages on Linux:
 #   apex
@@ -227,7 +239,7 @@ pip install --index-url https://rocm.nightlies.amd.com/whl-staging-multi-arch/ \
 > install ROCm separately:
 >
 > ```bash
-> pip install --index-url https://rocm.nightlies.amd.com/whl-staging-multi-arch/ \
+> pip install --index-url https://rocm.nightlies.amd.com/whl-multi-arch/ \
 >     "torch[device-gfx1100]"
 >
 > pip freeze  # with approximate download sizes:
