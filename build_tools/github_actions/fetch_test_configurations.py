@@ -216,6 +216,16 @@ test_matrix = {
             "windows": 1,
         },
     },
+    "amdsmi": {
+        "job_name": "amdsmi",
+        "fetch_artifact_args": "--base-only",
+        "timeout_minutes": 10,
+        "test_script": f"python {_get_script_path('test_amdsmi.py')}",
+        "platform": ["linux"],
+        "total_shards_dict": {
+            "linux": 1,
+        },
+    },
     "hipblaslt": {
         "job_name": "hipblaslt",
         "fetch_artifact_args": "--blas --tests",
@@ -257,7 +267,7 @@ test_matrix = {
         "job_name": "rocprim",
         "fetch_artifact_args": "--prim --tests",
         "timeout_minutes": 30,
-        "test_script": f"python {_get_script_path('test_rocprim.py')}",
+        "test_script": f"python {_get_script_path('test_runner.py')}",
         "platform": ["linux", "windows"],
         "total_shards_dict": {
             "linux": 2,
@@ -313,7 +323,7 @@ test_matrix = {
         "job_name": "hipsparse",
         "fetch_artifact_args": "--blas --tests",
         "timeout_minutes": 30,
-        "test_script": f"python {_get_script_path('test_hipsparse.py')}",
+        "test_script": f"python {_get_script_path('test_runner.py')}",
         "platform": ["linux", "windows"],
         "total_shards_dict": {
             "linux": 1,
@@ -324,7 +334,7 @@ test_matrix = {
         "job_name": "rocsparse",
         "fetch_artifact_args": "--blas --tests",
         "timeout_minutes": 15,
-        "test_script": f"python {_get_script_path('test_rocsparse.py')}",
+        "test_script": f"python {_get_script_path('test_runner.py')}",
         "platform": ["linux", "windows"],
         "total_shards_dict": {
             "linux": 1,
@@ -474,6 +484,21 @@ test_matrix = {
             "windows": 1,
         },
     },
+    # !! DISABLED because of https://github.com/ROCm/TheRock/issues/5689
+    # !! Windows loading of the python bindings require special LOAD_LIBRARY_SEARCH_DEFAULT_DIRS
+    # !! We need AddDllDirectory. Commenting out to unblock CI issues.
+    # hipDNN Python bindings wheel build + install + pytest
+    # "hipdnn_python_bindings": {
+    #     "job_name": "hipdnn_python_bindings",
+    #     "fetch_artifact_args": "--blas --miopen --hipdnn --miopenprovider --tests",
+    #     "timeout_minutes": 30,
+    #     "test_script": f"python {_get_script_path('test_hipdnn_frontend_python.py')}",
+    #     "platform": ["linux", "windows"],
+    #     "total_shards_dict": {
+    #         "linux": 1,
+    #         "windows": 1,
+    #     },
+    # },
     # hipDNN integration tests (unit tests for the integration test harness)
     "hipdnn-integration-tests": {
         "job_name": "hipdnn-integration-tests",
